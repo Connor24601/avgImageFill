@@ -1,45 +1,63 @@
-import PIL
 import sys
 import argparse
 import logging
-import src.imageLoader
+import src.imageLoader as imageLoader
+from utilities.util import CONSTANTS
 
-#	major.minor.patch
-VERSION = "0.0.0"
-logging.basicConfig()
-logger = logging.getLogger()
-
-
-def main(parser):
-	args = parser.parse_args()
-	logLevel = args.v
-	level = 40 - (10 * int(logLevel))
-	if (args.verbose or args.debug):
-		level = min(10, level)
-	logger.setLevel(level)
-	logging.info("Logging level set to %s", logging.getLevelName(logger.getEffectiveLevel()))
-	logging.debug(sys.argv)
+def main(args):
+	
+	
+	logger = setupLogger("main")
 	if (args.debug):
-		choice = input("DEBUG: Show all arguments? [y/N]: ").lower()
+		
+		choice = input("Show all arguments? [y/N]: ").lower()
 		if (choice in {"y","yes"}):
-			print(args)
-		print("DEBUG: continuing...")
+			logger.debug(args)
+		logger.debug("continuing...")
+	
+	imgLoad = imageLoader.ImageLoader(args.imageFile,args.m)
+	
+
+
+
+def setupLogger(name):
+	logger = logging.getLogger(name)
+	logger.setLevel(CONSTANTS.LOG_LEVEL)
+	try:
+		import coloredlogs
+		coloredlogs.install(level=CONSTANTS.LOG_LEVEL, logger=logger,\
+		 fmt='%(asctime)s %(name)s %(levelname)s: %(message)s',\
+		 datefmt='%H:%M:%S',\
+		 field_styles = {'asctime': {'color': 8}, 'name': {'color':103},'levelname': {'bold': True, 'color':'white'} })
+		logger.debug("successfully set up colored logs")
+	except Exception as e:
+		logger.warning("could not get optional dependency: coloredLogs")
+	finally:
+		logger.info("Logging level set to %s", logging.getLevelName(logger.getEffectiveLevel()))
+		return logger
 	
 
 
 
 
-
 if __name__ == "__main__":
-
 	parser = argparse.ArgumentParser(prog='Image Filler',\
         description='Takes an image and a mask, and fills the spaces defined by the mask by the average color',\
         epilog='avgImageFiller is available on GitHub under the MIT license')
-	parser.add_argument('--version', action='version', version='%(prog)s ' + VERSION)
+	parser.add_argument('--version', action='version', version='%(prog)s ' + CONSTANTS.VERSION)
 	parser.add_argument('-v', action='count', default=0, help="sets log level-- more 'v's means lower level")
 	parser.add_argument('--verbose', action='store_true',default=False, help="automatically sets log level to DEBUG")
 	parser.add_argument('--dry-run', action='store_true', default=False, help="does a dry run with no image saving")
 	parser.add_argument('--rough',action='store', default=0, help="takes an int, speeds up computation at cost of accuracy")
 	parser.add_argument('--debug', action='store_true', default=False, help="sets log level and enforces special pauses and input")
+	parser.add_argument('imageFile', action='store', default="", help="image to process")
+	parser.add_argument('-m', action='store', default="", help="mask image to use")
 
-	main(parser)
+	args = parser.parse_args()
+	CONSTANTS.LOG_LEVEL = max(40 - (10 * int(args.v)), 10)
+	if (args.verbose or args.debug):
+		CONSTANTS.LOG_LEVEL = min(10, CONSTANTS.LOG_LEVEL)
+
+	main(args)
+
+
