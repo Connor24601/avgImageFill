@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 import argparse
 import logging
@@ -15,27 +17,38 @@ def main(args):
 			logger.debug(args)
 		logger.debug("continuing...")
 	
-	mask = args.m if args.m != '' else args.mask
-	output = args.o if args.o != './output.png' else args.output
-	fileManager = FileManager.FileManager(args.imageFile,mask, output)
+	try:
+		mask = args.m if args.m != '' else args.mask
+		output = args.o if args.o != './output.png' else args.output
+		fileManager = FileManager.FileManager(args.imageFile,mask, output)
+		imageManipulator = ImageManipulator.ImageManipulator(fileManager, args.rough, args.dry_run)
+
+	except Exception as e:
+		logger.critical(e)
+	else:
+		return -1
+	finally:
+		return 0
+	
 	
 
 
 
-def setupLogger(name):
+def setupLogger(name, **kwargs):
 	logger = logging.getLogger(name)
-	logger.setLevel(CONSTANTS.LOG_LEVEL)
+	logLevel = kwargs.get("level", CONSTANTS.LOG_LEVEL)
+	logger.setLevel(logLevel)
 	try:
 		import coloredlogs
-		coloredlogs.install(level=CONSTANTS.LOG_LEVEL, logger=logger,\
+		coloredlogs.install(level=logLevel, logger=logger,\
 		 fmt='%(asctime)s %(name)s %(levelname)s: %(message)s',\
 		 datefmt='%H:%M:%S',\
 		 field_styles = {'asctime': {'color': 8}, 'name': {'color':103},'levelname': {'bold': True, 'color':'white'} })
 		logger.debug("successfully set up colored logs")
 	except Exception as e:
-		logger.warning("could not get optional dependency: coloredLogs")
+		logger.warning("%s: could not get optional dependency: coloredLogs", name)
 	finally:
-		logger.info("Logging level set to %s", logging.getLevelName(logger.getEffectiveLevel()))
+		logger.info("%s: logging level set to %s", name, logging.getLevelName(logger.getEffectiveLevel()))
 		return logger
 	
 

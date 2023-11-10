@@ -1,6 +1,21 @@
 import sys
 import logging
-import main
+
+main = None
+for i in range(2):
+	try:
+		import main
+		break
+	except ModuleNotFoundError as e:
+		sys.path.append('../avgImageFill')
+	
+	except Exception as e:
+		logging.getLogger("FileManager").critical(e)
+		
+	
+if (main == None):
+	logging.getLogger("FileManager").critical("Critical: Could not find main from FileManager")
+	exit(-1)
 
 
 class FileManager:
@@ -44,5 +59,10 @@ class FileManager:
 		#kwargs.path
 		newImage = self.PIL.Image.new('HSV',(1080,1080))
 		return newImage
+
+
+if __name__ == "__main__":
+	logger = main.setupLogger("FileManager", level=0)
+	logger.warning("This file should only be run manually if testing")
 
 
