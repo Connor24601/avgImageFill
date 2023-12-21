@@ -6,6 +6,7 @@ import logging
 import src.FileManager as FileManager
 from utilities.util import CONSTANTS
 import src.ImageManipulator as ImageManipulator
+import src.img.Pixel as Pixel
 
 def main(args):
 	
@@ -22,7 +23,14 @@ def main(args):
 		output = args.o if args.o != './output.png' else args.output
 		fileManager = FileManager.FileManager(args.imageFile,mask, output)
 		imageManipulator = ImageManipulator.ImageManipulator(fileManager, args.rough, args.dry_run)
-
+		img = fileManager.input
+		mask = fileManager.mask
+		if (img == None or mask == None):
+			logger.critical("Could not find any files")
+		if (args.debug):
+			imageManipulator.validationTest(img)
+			imageManipulator.validationTest(mask)
+		imageManipulator.segFill(img, mask)
 	except Exception as e:
 		logger.critical(e)
 	else:
