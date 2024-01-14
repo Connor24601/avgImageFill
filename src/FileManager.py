@@ -36,10 +36,10 @@ class FileManager:
 
 		if (self.pathImage == ""):
 			self.logger.error("No image file provided-- running demo")
-			self.pathImage = "./Utilities/demo.png"
+			self.pathImage = "./utilities/demo.png"
 		if (self.pathMask == ""):
 			self.logger.warning("No mask image file provided-- using default")
-			self.pathMask = "./Utilities/defaultMask.png"
+			self.pathMask = "./utilities/defaultMask.png"
 
 		try:
 			self.input = None

@@ -17,6 +17,8 @@ def main(args):
 		if (choice in {"y","yes"}):
 			logger.debug(args)
 		logger.debug("continuing...")
+	if (args.dry_run):
+		print("performing dry run...")
 	
 	try:
 		mask = args.m if args.m != '' else args.mask
@@ -31,7 +33,9 @@ def main(args):
 			imageManipulator.imagePixelTest(img)
 			imageManipulator.imagePixelTest(mask)
 		imageManipulator.segFill(img, mask)
-		if args.debug:
+		if args.debug or args.dry_run:
+			if (args.dry_run):
+				print("performing image validation for dry run")
 			imageManipulator.validationTest(img)
 		if not args.dry_run:
 			logger.info("continuing to paint")
@@ -39,6 +43,7 @@ def main(args):
 			imageManipulator.paintOut(outputImg)
 			logger.info("saving output to %s", output)
 			outputImg.save(output,"PNG")
+			print("Successfully saved output to ", output)
 		else:
 			logger.warning("finishing Dry Run")
 
