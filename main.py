@@ -27,12 +27,26 @@ def main(args):
 		mask = fileManager.mask
 		if (img == None or mask == None):
 			logger.critical("Could not find any files")
-		if (args.debug):
-			imageManipulator.validationTest(img)
-			imageManipulator.validationTest(mask)
+		if args.debug:
+			imageManipulator.imagePixelTest(img)
+			imageManipulator.imagePixelTest(mask)
 		imageManipulator.segFill(img, mask)
+		if args.debug:
+			imageManipulator.validationTest(img)
+		if not args.dry_run:
+			logger.info("continuing to paint")
+			outputImg = fileManager.createNewImage(img)
+			imageManipulator.paintOut(outputImg)
+			logger.info("saving output to %s", output)
+			outputImg.save(output,"PNG")
+		else:
+			logger.warning("finishing Dry Run")
+
+
 	except Exception as e:
-		logger.critical(e)
+		logger.critical("error in main - %s : %s ", type(e), e)
+		if args.debug:
+			logger.exception(e)
 	else:
 		return -1
 	finally:
@@ -65,8 +79,8 @@ def setupLogger(name, **kwargs):
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(prog='Image Filler',\
-        description='Takes an image and a mask, and fills the spaces defined by the mask by the average color',\
-        epilog='avgImageFiller is available on GitHub under the MIT license')
+		description='Takes an image and a mask, and fills the spaces defined by the mask by the average color',\
+		epilog='avgImageFiller is available on GitHub under the MIT license')
 	parser.add_argument('--version', action='version', version='%(prog)s ' + CONSTANTS.VERSION)
 	parser.add_argument('-v', action='count', default=0, help="sets log level-- more 'v's means lower level")
 	parser.add_argument('--verbose', action='store_true',default=False, help="automatically sets log level to DEBUG")

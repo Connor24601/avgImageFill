@@ -19,10 +19,10 @@ if (main == None):
 
 
 class FileManager:
-	def __init__(self, pathImage, pathMask, output):
+	def __init__(self, pathImage, pathMask, pathOutput):
 		self.pathMask = pathMask
 		self.pathImage = pathImage
-		self.output = output
+		self.output = pathOutput
 		self.logger = main.setupLogger("FileManager")
 		try:
 			import PIL
@@ -55,9 +55,9 @@ class FileManager:
 			return
 		return
 
-	def createNewImage(**kwargs):
+	def createNewImage(self,image):
 		#kwargs.path
-		newImage = self.PIL.Image.new('HSV',(1080,1080))
+		newImage = self.PIL.Image.new('RGBA',(image.width,image.height))
 		return newImage
 
 
